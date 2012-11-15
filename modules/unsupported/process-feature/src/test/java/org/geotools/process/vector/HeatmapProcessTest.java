@@ -72,6 +72,58 @@ public class HeatmapProcessTest {
                 20,  //radius
                 null, // weightAttr
                 1, // pixelsPerCell
+                (String) null, // rasterizeMode
+                bounds, // outputEnv
+                100, // outputWidth
+                100, // outputHeight
+                monitor // monitor)
+        );
+        
+        // following tests are checking for an appropriate shape for the surface
+        
+        float center1 = coverageValue(cov, 4, 4);
+        float center2 = coverageValue(cov, 4, 6);
+        float midway = coverageValue(cov, 4, 5);
+        float far = coverageValue(cov, 9, 9);
+        
+        // peaks are roughly equal
+        float peakDiff = Math.abs(center1 - center2);
+        assert(peakDiff < center1 / 10);
+        
+        // dip between peaks
+        assertTrue(midway > center1 / 2);
+        
+        // surface is flat far away
+        assertTrue(far < center1 / 1000);
+
+    }
+    
+    /**
+     * Repeat testSimpleSurface with rasterizeMode=envelope.
+     * Should give the same result for point features.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testSimpleSurfaceEnvelope() {
+
+        ReferencedEnvelope bounds = new ReferencedEnvelope(0, 10, 0, 10, DefaultGeographicCRS.WGS84);
+        Coordinate[] data = new Coordinate[] { 
+                new Coordinate(4, 4),
+                new Coordinate(4, 6),
+                // include a coordinate outside the heatmap buffer bounds, to ensure it is filtered correctly
+                new Coordinate(100, 100)
+        };
+        SimpleFeatureCollection fc = createPoints(data, bounds);
+
+        ProgressListener monitor = null;
+
+        HeatmapProcess process = new HeatmapProcess();
+        GridCoverage2D cov = process.execute(fc, // data
+                20,  //radius
+                null, // weightAttr
+                1, // pixelsPerCell
+                "envelope", // rasterizeMode
                 bounds, // outputEnv
                 100, // outputWidth
                 100, // outputHeight

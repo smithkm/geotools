@@ -132,12 +132,13 @@ public class HeatmapProcess implements VectorProcess {
             @DescribeParameter(name = "radiusPixels", description = "Radius of the density kernel in pixels") Integer argRadiusPixels,
             @DescribeParameter(name = "weightAttr", description = "Name of the attribute to use for data point weight", min = 0, max = 1) String valueAttr,
             @DescribeParameter(name = "pixelsPerCell", description = "Resolution at which to compute the heatmap (in pixels). Default = 1", min = 0, max = 1) Integer argPixelsPerCell,
+            @DescribeParameter(name = "rasterizeMode", description = "Method used to rasterize complex geometries (\"centroid\", \"envelope\"). Default = \"centroid\"", min = 0, max = 1) String argRasterizeMode,
 
             // output image parameters
             @DescribeParameter(name = "outputBBOX", description = "Bounding box of the output") ReferencedEnvelope argOutputEnv,
             @DescribeParameter(name = "outputWidth", description = "Width of output raster in pixels") Integer argOutputWidth,
             @DescribeParameter(name = "outputHeight", description = "Height of output raster in pixels") Integer argOutputHeight,
-
+ 
             ProgressListener monitor) throws ProcessException {
 
         /**
@@ -155,6 +156,18 @@ public class HeatmapProcess implements VectorProcess {
             gridWidth = outputWidth / pixelsPerCell;
             gridHeight = outputHeight / pixelsPerCell;
         }
+        
+        GeometryRasterizer rasterizer = new CentroidGeometryRasterizer();
+        if(argRasterizeMode!=null) {
+            if(argRasterizeMode.equalsIgnoreCase("centroid")) {
+                rasterizer = new CentroidGeometryRasterizer();
+            } else if(argRasterizeMode.equalsIgnoreCase("envelope")) {
+                rasterizer = new BoundingBoxGeometryRasterizer();
+            } else {
+                throw new ProcessException(String.format("Unknown rasterizeMode for Heatmap: \"%s\"", argRasterizeMode));
+            }
+        }
+        
 
         /**
          * Compute transform to convert input coords into output CRS
@@ -188,7 +201,7 @@ public class HeatmapProcess implements VectorProcess {
         HeatmapSurface heatMap = new HeatmapSurface(radiusCells, argOutputEnv, gridWidth,
                 gridHeight);
         try {
-            extractPoints(obsFeatures, valueAttr, trans, heatMap);
+            extractPoints(obsFeatures, valueAttr, trans, heatMap, rasterizer);
         } catch (CQLException e) {
             throw new ProcessException(e);
         }
@@ -329,46 +342,27 @@ public class HeatmapProcess implements VectorProcess {
                 distance), null);
     }
 
-    private static void rasterizeBounds(Geometry g, double value, MathTransform trans, HeatmapSurface heatMap) {
-    	GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer();
-    	transformer.setMathTransform(trans);
-    	
-    	try {
-			g=transformer.transform(g);
-		} catch (TransformException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	
-    	final Envelope e = g.getEnvelopeInternal().intersection(heatMap.srcEnv);
-    	
-    	final int minI = heatMap.gridTrans.i(e.getMinX());
-    	final int minJ = heatMap.gridTrans.j(e.getMinY());
-    	final int maxI = heatMap.gridTrans.i(e.getMaxX());
-    	final int maxJ = heatMap.gridTrans.j(e.getMaxY());
-    	
-    	// Should replace this with a proper scanline rasterization algorithm
-    	// but covering the entire bounding box works for now
-    	
-    	for (int i = minI;  i <= maxI;  i++) {
-        	for (int j = minJ;  j <= maxJ;  j++) {
-        		heatMap.addPoint(i, j, value);
-        	}
-    	}
-    }
     public static void extractPoints(SimpleFeatureCollection obsPoints, String attrName,
-            MathTransform trans, HeatmapSurface heatMap) throws CQLException {
+            MathTransform trans, final HeatmapSurface heatMap, GeometryRasterizer rasterizer) throws CQLException {
         Expression attrExpr = null;
         if (attrName != null) {
             attrExpr = ECQL.toExpression(attrName);
         }
 
         SimpleFeatureIterator obsIt = obsPoints.features();
+        
+        GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer();
+        transformer.setMathTransform(trans);
 
-        double[] srcPt = new double[2];
-        double[] dstPt = new double[2];
-
-        int i = 0;
+        rasterizer.setTransformation(heatMap.gridTrans);
+        rasterizer.setHandler(new GeometryRasterizer.RasterHandler() {
+            
+            @Override
+            public void point(int i, int j, Object o) {
+                heatMap.addPoint(i, j, (Float) o);
+            }
+        });
+        
         try {
             while (obsIt.hasNext()) {
                 SimpleFeature feature = obsIt.next();
@@ -380,18 +374,15 @@ public class HeatmapProcess implements VectorProcess {
                         val = getPointValue(feature, attrExpr);
                     }
                     
-                    
-                    // get the point location from the geometry
                     Geometry geom = (Geometry) feature.getDefaultGeometry();
-                    //Coordinate p = getPoint(geom);
-                    //srcPt[0] = p.x;
-                    //srcPt[1] = p.y;
-                    //trans.transform(srcPt, 0, dstPt, 0, 1);
-                    //Coordinate pobs = new Coordinate(dstPt[0], dstPt[1], val);
-
-                    //heatMap.addPoint(pobs.x, pobs.y, val);
                     
-                    rasterizeBounds(geom, val, trans, heatMap);
+                    try {
+                        geom=transformer.transform((Geometry) feature.getDefaultGeometry());
+                        rasterizer.rasterize(geom, new Float(val));
+                    } catch (TransformException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                 } catch (Exception e) {
                     // just carry on for now (debugging)
                     // throw new ProcessException("Expression " + attrExpr +
