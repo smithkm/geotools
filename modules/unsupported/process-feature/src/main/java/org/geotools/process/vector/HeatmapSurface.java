@@ -39,13 +39,13 @@ public class HeatmapSurface {
      */
     private static final int GAUSSIAN_APPROX_ITER = 4;
 
-    private Envelope srcEnv;
+    final Envelope srcEnv;
 
-    private int xSize;
+    final int xSize;
 
-    private int ySize;
+    final int ySize;
 
-    private GridTransform gridTrans;
+    GridTransform gridTrans;
 
     private float[][] grid;
 
@@ -87,7 +87,7 @@ public class HeatmapSurface {
     }
 
     /**
-     * Adds a new data point to the surface. Data points can be coincident.
+     * Adds a new data point to the surface in map space. Data points can be coincident.
      * 
      * @param x the X ordinate of the point
      * @param y the Y ordinate of the point
@@ -96,10 +96,28 @@ public class HeatmapSurface {
     public void addPoint(double x, double y, double value) 
     {
         /**
-         * Input points are converted to grid space, and offset by the grid expansion offset
+         * Input points are converted to grid space
          */
-        int gi = gridTrans.i(x) + kernelRadiusGrid;
-        int gj = gridTrans.j(y) + kernelRadiusGrid;
+        int i = gridTrans.i(x);
+        int j = gridTrans.j(y);
+        
+        addPoint(i, j, value);
+    }
+    
+    /**
+     * Adds a new data point to the surface in pixel space. Data points can be coincident.
+     * 
+     * @param i the I (X) ordinate of the point
+     * @param j the J (Y) ordinate of the point
+     * @param value the data value of the point
+     */
+    public void addPoint(int i, int j, double value) 
+    {
+        /**
+         * Input points are offset by the grid expansion offset
+         */
+        int gi = i + kernelRadiusGrid;
+        int gj = j + kernelRadiusGrid;
 
         // check if point falls outside grid - skip it if so
         if (gi < 0 || gi > grid.length || gj < 0 || gj > grid[0].length)

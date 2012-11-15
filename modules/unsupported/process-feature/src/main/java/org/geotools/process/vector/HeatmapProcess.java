@@ -30,6 +30,7 @@ import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.factory.Hints;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
+import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.process.ProcessException;
 import org.geotools.process.factory.DescribeParameter;
@@ -44,9 +45,11 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 import org.opengis.util.ProgressListener;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -326,6 +329,33 @@ public class HeatmapProcess implements VectorProcess {
                 distance), null);
     }
 
+    private static void rasterizeBounds(Geometry g, double value, MathTransform trans, HeatmapSurface heatMap) {
+    	GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer();
+    	transformer.setMathTransform(trans);
+    	
+    	try {
+			g=transformer.transform(g);
+		} catch (TransformException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    	final Envelope e = g.getEnvelopeInternal().intersection(heatMap.srcEnv);
+    	
+    	final int minI = heatMap.gridTrans.i(e.getMinX());
+    	final int minJ = heatMap.gridTrans.j(e.getMinY());
+    	final int maxI = heatMap.gridTrans.i(e.getMaxX());
+    	final int maxJ = heatMap.gridTrans.j(e.getMaxY());
+    	
+    	// Should replace this with a proper scanline rasterization algorithm
+    	// but covering the entire bounding box works for now
+    	
+    	for (int i = minI;  i <= maxI;  i++) {
+        	for (int j = minJ;  j <= maxJ;  j++) {
+        		heatMap.addPoint(i, j, value);
+        	}
+    	}
+    }
     public static void extractPoints(SimpleFeatureCollection obsPoints, String attrName,
             MathTransform trans, HeatmapSurface heatMap) throws CQLException {
         Expression attrExpr = null;
@@ -349,16 +379,19 @@ public class HeatmapProcess implements VectorProcess {
                     if (attrExpr != null) {
                         val = getPointValue(feature, attrExpr);
                     }
-
+                    
+                    
                     // get the point location from the geometry
                     Geometry geom = (Geometry) feature.getDefaultGeometry();
-                    Coordinate p = getPoint(geom);
-                    srcPt[0] = p.x;
-                    srcPt[1] = p.y;
-                    trans.transform(srcPt, 0, dstPt, 0, 1);
-                    Coordinate pobs = new Coordinate(dstPt[0], dstPt[1], val);
+                    //Coordinate p = getPoint(geom);
+                    //srcPt[0] = p.x;
+                    //srcPt[1] = p.y;
+                    //trans.transform(srcPt, 0, dstPt, 0, 1);
+                    //Coordinate pobs = new Coordinate(dstPt[0], dstPt[1], val);
 
-                    heatMap.addPoint(pobs.x, pobs.y, val);
+                    //heatMap.addPoint(pobs.x, pobs.y, val);
+                    
+                    rasterizeBounds(geom, val, trans, heatMap);
                 } catch (Exception e) {
                     // just carry on for now (debugging)
                     // throw new ProcessException("Expression " + attrExpr +
