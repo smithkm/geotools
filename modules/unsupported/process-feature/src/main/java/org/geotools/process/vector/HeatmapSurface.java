@@ -49,7 +49,7 @@ public class HeatmapSurface {
 
     private float[][] grid;
 
-    private int kernelRadiusGrid;
+    final int kernelRadiusGrid;
 
     /**
      * Creates a new heatmap surface.

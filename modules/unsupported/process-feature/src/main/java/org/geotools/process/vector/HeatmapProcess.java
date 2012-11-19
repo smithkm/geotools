@@ -376,17 +376,12 @@ public class HeatmapProcess implements VectorProcess {
                     
                     Geometry geom = (Geometry) feature.getDefaultGeometry();
                     
-                    try {
-                        geom=transformer.transform((Geometry) feature.getDefaultGeometry());
-                        rasterizer.rasterize(geom, new Float(val));
-                    } catch (TransformException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
+                    geom=transformer.transform((Geometry) feature.getDefaultGeometry());
+                    rasterizer.rasterize(geom, new Float(val));
                 } catch (Exception e) {
                     // just carry on for now (debugging)
-                    // throw new ProcessException("Expression " + attrExpr +
-                    // " failed to evaluate to a numeric value", e);
+                    throw new ProcessException("Expression " + attrExpr +
+                     " failed to evaluate to a numeric value", e);
                 }
             }
         } finally {

@@ -41,7 +41,9 @@ public interface GeometryRasterizer {
          * @param o the user data passed in with the geometry
          */
         public void point(int i, int j, Object o);
+        
     }
+    
     
     /**
      * Set the GridTransformation used to transform from spatial to pixel coordinates
