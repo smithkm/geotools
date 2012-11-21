@@ -31,19 +31,20 @@ import com.vividsolutions.jts.geom.Envelope;
  * must check that values are in an acceptable range.
  * 
  * @author Martin Davis - OpenGeo
+ * @author Kevin Smith - OpenGeo
  *
  */
 class GridTransform {
 
-    private Envelope env;
+    final private Envelope env;
 
-    private int xSize;
+    final private int xSize;
 
-    private int ySize;
+    final private int ySize;
 
-    private double dx;
+    final private double dx;
 
-    private double dy;
+    final private double dy;
 
     private boolean isClamped = true;
 
@@ -58,13 +59,60 @@ class GridTransform {
         this.env = env;
         this.xSize = xSize;
         this.ySize = ySize;
-        dx = env.getWidth() / (xSize - 1);
-        dy = env.getHeight() / (ySize - 1);
+        dx = env.getWidth() / (xSize);
+        dy = env.getHeight() / (ySize);
     }
+    
 
+    /**
+     * Returns a GridTransform with the same scale factors, but with an expanded envelope. Negative 
+     * margins may be used to contract the envelope. 
+     * 
+     * For points within both envelopes or when clamping is off, the pixel coordinates in the new 
+     * grid will be increased by the minI/J parameters given here, relative to the old grid.
+     * 
+     * @param minI margin in pixels to expand the lower I/X bound by.
+     * @param minJ margin in pixels to expand the lower J/Y bound by.
+     * @param maxI margin in pixels to expand the upper I/X bound by.
+     * @param maxJ margin in pixels to expand the upper J/Y bound by.
+     * @return 
+     */
+    public GridTransform expand(int minI, int minJ, int maxI, int maxJ){
+        int newXSize = this.xSize+minI+maxI;
+        int newYSize = this.ySize+minJ+maxJ;
+        
+        Envelope newEnv = new Envelope(
+                env.getMinX()-minI*dx, 
+                env.getMaxX()+maxI*dx,
+                env.getMinY()-minJ*dy, 
+                env.getMaxY()+maxJ*dy);
+
+        GridTransform newGrid = new GridTransform(newEnv, newXSize, newYSize);
+        newGrid.setClamp(isClamped); // New Transform should have same clamped state as old one.
+        
+        return newGrid;
+    }
+    
+    /**
+     * Returns a GridTransform equivalent to this one, but with an expanded envelope. A negative 
+     * margin may be used to contract the envelope.
+     * 
+     * For points within both envelopes or when clamping is off, the pixel coordinates in the new 
+     * grid will be increased by the margin parameter given here, relative to the old grid.
+     * 
+     * @param margin margin in pixels to expand the bounds by.
+     * @return 
+     */
+    public GridTransform expand(int margin){
+        
+        return this.expand(margin, margin, margin, margin);
+    }
+    
     /**
      * Sets whether to clamp outputs from transform to input envelope.
      * Default is to clamp the outputs.
+     * 
+     * Clamped values will be set to -1 or x/ySize. 
      * 
      * @param isClamped true if input is to be clamped
      */
@@ -72,27 +120,56 @@ class GridTransform {
     {
         this.isClamped  = isClamped;
     }
-    
+
     /**
-     * Computes the X ordinate of the i'th grid column.
+     * The envelope of the GridTransformation
+     * @return
+     */
+    public Envelope getEnv() {
+        return env;
+    }
+
+
+    /**
+     * The width of the grid
+     * @return
+     */
+    public int getXSize() {
+        return xSize;
+    }
+
+
+    /**
+     * The height of the grid
+     * @return
+     */
+   public int getYSize() {
+        return ySize;
+    }
+
+
+    /**
+     * Computes the X ordinate of the centre of the Ith grid column.
      * @param i the index of a grid column
      * @return the X ordinate of the column
      */
     public double x(int i) {
         if (i >= xSize - 1)
             return env.getMaxX();
-        return env.getMinX() + i * dx;
+        // Get the centre of the cell
+        return env.getMinX() + (2*i+1) * dx / 2;
     }
 
     /**
-     * Computes the Y ordinate of the i'th grid row.
+     * Computes the Y ordinate of the centre of the Jth grid row.
      * @param j the index of a grid row
      * @return the Y ordinate of the row
      */
     public double y(int j) {
         if (j >= ySize - 1)
             return env.getMaxY();
-        return env.getMinY() + j * dy;
+        // Get the centre of the cell
+       return env.getMinY() + (2*j+1) * dy /2;
     }
 
     /**
@@ -129,4 +206,31 @@ class GridTransform {
         return j;
     }
 
+    /**
+     * Computes the column index of an X ordinate.  Out of bounds ordinates are set to the nearest edge.
+     * @param x
+     * @return
+     */
+    public int safeI(double x){
+        int i = i(x);
+        if(isClamped){
+            if(i<0) return 0;
+            if(i>=getXSize()) return i-1;
+        }
+        return i;
+    }
+    
+    /**
+     * Computes the row index of a Y ordinate.  Out of bounds ordinates are set to the nearest edge.
+     * @param y
+     * @return
+     */
+    public int safeJ(double y){
+        int j = j(y);
+        if(isClamped){
+            if(j<0) return 0;
+            if(j>=getYSize()) return j-1;
+        }
+        return j;
+    }
 }
