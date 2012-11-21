@@ -72,18 +72,9 @@ public class HeatmapSurface {
 
     private void init() {
         gridTrans = new GridTransform(srcEnv, xSize, ySize);
-        /**
-         * Do NOT clamp transform output, since
-         * the actual target grid is larger than the source Envelope,
-         * due to the required buffering.
-         * This means that transform outputs MUST be checked for validity.
-         */
-        gridTrans.setClamp(false);
+        gridTrans=gridTrans.expand(kernelRadiusGrid);
 
-        int xSizeExp = xSize + 2 * kernelRadiusGrid;
-        int ySizeExp = ySize + 2 * kernelRadiusGrid;
-
-        grid = new float[xSizeExp][ySizeExp];
+        grid = new float[gridTrans.getXSize()][gridTrans.getYSize()];
     }
 
     /**
@@ -113,17 +104,11 @@ public class HeatmapSurface {
      */
     public void addPoint(int i, int j, double value) 
     {
-        /**
-         * Input points are offset by the grid expansion offset
-         */
-        int gi = i + kernelRadiusGrid;
-        int gj = j + kernelRadiusGrid;
-
         // check if point falls outside grid - skip it if so
-        if (gi < 0 || gi > grid.length || gj < 0 || gj > grid[0].length)
+        if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length)
             return;
         
-        grid[gi][gj] += value;
+        grid[i][j] += value;
         // System.out.println("data[" + gi + ", " + gj + "] <- " + value);
     }
 
