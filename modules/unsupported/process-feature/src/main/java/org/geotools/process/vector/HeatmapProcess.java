@@ -133,6 +133,7 @@ public class HeatmapProcess implements VectorProcess {
             @DescribeParameter(name = "weightAttr", description = "Name of the attribute to use for data point weight", min = 0, max = 1) String valueAttr,
             @DescribeParameter(name = "pixelsPerCell", description = "Resolution at which to compute the heatmap (in pixels). Default = 1", min = 0, max = 1) Integer argPixelsPerCell,
             @DescribeParameter(name = "rasterizeMode", description = "Method used to rasterize complex geometries (\"centroid\", \"envelope\"). Default = \"centroid\"", min = 0, max = 1) String argRasterizeMode,
+            @DescribeParameter(name = "normalizeMinimum", description = "Normalize so that the minimum value is 0.  Default = false", min = 0, max = 1) Boolean argNormalizeMinimum,
 
             // output image parameters
             @DescribeParameter(name = "outputBBOX", description = "Bounding box of the output") ReferencedEnvelope argOutputEnv,
@@ -168,7 +169,10 @@ public class HeatmapProcess implements VectorProcess {
             }
         }
         
-
+        boolean normalizeMinimum = false;
+        if(argNormalizeMinimum!=null) {
+            normalizeMinimum = argNormalizeMinimum;
+        }
         /**
          * Compute transform to convert input coords into output CRS
          */
@@ -199,7 +203,7 @@ public class HeatmapProcess implements VectorProcess {
          * -------------- Extract the input observation points -----------
          */
         HeatmapSurface heatMap = new HeatmapSurface(radiusCells, argOutputEnv, gridWidth,
-                gridHeight);
+                gridHeight, normalizeMinimum);
         try {
             extractPoints(obsFeatures, valueAttr, trans, heatMap, rasterizer);
         } catch (CQLException e) {

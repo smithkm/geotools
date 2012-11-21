@@ -50,6 +50,8 @@ public class HeatmapSurface {
     private float[][] grid;
 
     final int kernelRadiusGrid;
+    
+    final boolean normalizeMinimum;
 
     /**
      * Creates a new heatmap surface.
@@ -59,13 +61,14 @@ public class HeatmapSurface {
      * @param xSize the width of the output grid
      * @param ySize the height of the output grid
      */
-    public HeatmapSurface(int kernelRadius, Envelope srcEnv, int xSize, int ySize) {
+    public HeatmapSurface(int kernelRadius, Envelope srcEnv, int xSize, int ySize, boolean normalizeMinimum) {
         // radius must be non-negative
         this.kernelRadiusGrid = Math.max(kernelRadius, 0);
 
         this.srcEnv = srcEnv;
         this.xSize = xSize;
         this.ySize = ySize;
+        this.normalizeMinimum = normalizeMinimum;
 
         init();
     }
@@ -205,6 +208,8 @@ public class HeatmapSurface {
         System.out.println("norm factor = " + val);
     }
 
+    
+    
     /**
      * Normalizes grid values to range [0,1]
      * 
@@ -212,18 +217,28 @@ public class HeatmapSurface {
      */
     private void normalize(float[][] grid) {
         float max = Float.NEGATIVE_INFINITY;
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[0].length; j++) {
+        float min = Float.POSITIVE_INFINITY;
+        
+        // Want to normalize over just the visible portion
+        
+        for (int i = kernelRadiusGrid; i < kernelRadiusGrid+xSize; i++) {
+            for (int j = kernelRadiusGrid; j < kernelRadiusGrid+ySize; j++) {
                 if (grid[i][j] > max)
                     max = grid[i][j];
+                if (grid[i][j] < min)
+                    min = grid[i][j];
             }
         }
 
-        float normFactor = 1.0f / max;
+        float normOffset=0;
+        if(normalizeMinimum) {
+            normOffset=min;
+        }
+        float normFactor = 1.0f / (max-normOffset);
 
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[0].length; j++) {
-                grid[i][j] *= normFactor;
+                grid[i][j] = (grid[i][j]-normOffset)*normFactor;
             }
         }
     }

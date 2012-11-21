@@ -73,6 +73,7 @@ public class HeatmapProcessTest {
                 null, // weightAttr
                 1, // pixelsPerCell
                 (String) null, // rasterizeMode
+                (Boolean) null, // normalizeMinimum
                 bounds, // outputEnv
                 100, // outputWidth
                 100, // outputHeight
@@ -124,6 +125,7 @@ public class HeatmapProcessTest {
                 null, // weightAttr
                 1, // pixelsPerCell
                 "envelope", // rasterizeMode
+                (Boolean) null, // normalizeMinimum
                 bounds, // outputEnv
                 100, // outputWidth
                 100, // outputHeight
