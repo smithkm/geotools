@@ -363,8 +363,8 @@ public class HeatmapProcess implements VectorProcess {
         rasterizer.setHandler(new GeometryRasterizer.RasterHandler() {
             
             @Override
-            public void point(int i, int j, Object o) {
-                heatMap.addPoint(i, j, (Float) o);
+            public void point(int i, int j, Object userData, Object algorithmData) {
+                heatMap.addPoint(i, j, (Float) userData);
             }
         });
         

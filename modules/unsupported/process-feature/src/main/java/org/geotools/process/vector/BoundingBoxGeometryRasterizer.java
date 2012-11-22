@@ -12,7 +12,7 @@ import com.vividsolutions.jts.geom.Geometry;
 public class BoundingBoxGeometryRasterizer extends AbstractGeometryRasterizer {
 
     @Override
-    public void rasterize(Geometry g, Object o) {
+    public void rasterize(Geometry g, Object userData) {
         final Envelope geomBounds = g.getEnvelopeInternal();
         
         
@@ -24,7 +24,7 @@ public class BoundingBoxGeometryRasterizer extends AbstractGeometryRasterizer {
         
         for (int i = minI;  i <= maxI;  i++) {
             for (int j = minJ;  j <= maxJ;  j++) {
-                handler.point(i, j, o);
+                handler.point(i, j, userData, null);
             }
         }
     }

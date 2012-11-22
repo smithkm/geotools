@@ -11,7 +11,7 @@ import com.vividsolutions.jts.geom.Point;
 public class CentroidGeometryRasterizer extends AbstractGeometryRasterizer {
 
     @Override
-    public void rasterize(Geometry g, Object o) {
+    public void rasterize(Geometry g, Object userData) {
         Point p = g.getCentroid();
         
         int i = trans.i(p.getX());
@@ -20,7 +20,7 @@ public class CentroidGeometryRasterizer extends AbstractGeometryRasterizer {
         if(i<0 || i>= trans.getXSize()) return;
         if(j<0 || j>= trans.getYSize()) return;
         
-        handler.point(i, j, o);
+        handler.point(i, j, userData, null);
     }
 
 }
