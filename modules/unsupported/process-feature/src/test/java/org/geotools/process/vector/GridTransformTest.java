@@ -78,4 +78,20 @@ public class GridTransformTest {
         
     }
 
+    
+    @Test
+    public void testBackAndForth() {
+        // Transforming  pixel - world - pixel should give the original coordinates.
+        Envelope env = new Envelope(500, 1600, 400, 1400);
+        GridTransform trans = new GridTransform(env, 11, 10);
+
+        for(int i=0; i<11; i++) {
+            assertEquals(i, trans.i(trans.x(i)));
+        }
+        for(int j=0; j<10; j++) {
+            assertEquals(j, trans.j(trans.y(j)));
+        }
+        
+    }
+
 }
