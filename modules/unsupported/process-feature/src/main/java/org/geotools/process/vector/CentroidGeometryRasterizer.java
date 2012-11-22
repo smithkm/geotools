@@ -17,6 +17,9 @@ public class CentroidGeometryRasterizer extends AbstractGeometryRasterizer {
         int i = trans.i(p.getX());
         int j = trans.j(p.getY());
         
+        if(i<0 || i>= trans.getXSize()) return;
+        if(j<0 || j>= trans.getYSize()) return;
+        
         handler.point(i, j, o);
     }
 
