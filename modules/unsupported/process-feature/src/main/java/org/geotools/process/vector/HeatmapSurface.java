@@ -147,26 +147,28 @@ public class HeatmapSurface {
         int baseBoxKernelRadius = kernelRadius / GAUSSIAN_APPROX_ITER;
         int radiusIncBreak = kernelRadius - baseBoxKernelRadius * GAUSSIAN_APPROX_ITER;
 
-        /**
-         * Since Box Blur is linearly separable, can implement it by doing 2 1-D box blurs in
-         * different directions. Using a flipped buffer grid allows the same code to compute each
-         * direction, as well as preserving input grid values.
-         */
-        // holds flipped copy of first box blur pass
-        float[][] grid2 = new float[ySize][xSize];
-        for (int count = 0; count < GAUSSIAN_APPROX_ITER; count++) {
-            int boxKernelRadius = baseBoxKernelRadius;
+        // if the kernel radius is 0, just skip the blur entirely.
+        if(kernelRadius>0){
             /**
-             * If required, increment radius to ensure sum of radii equals total kernel radius
+             * Since Box Blur is linearly separable, can implement it by doing 2 1-D box blurs in
+             * different directions. Using a flipped buffer grid allows the same code to compute each
+             * direction, as well as preserving input grid values.
              */
-            if (count < radiusIncBreak)
-                boxKernelRadius++;
-            // System.out.println(boxKernelRadius);
-
-            boxBlur(boxKernelRadius, grid, grid2);
-            boxBlur(boxKernelRadius, grid2, grid);
+            // holds flipped copy of first box blur pass
+            float[][] grid2 = new float[ySize][xSize];
+            for (int count = 0; count < GAUSSIAN_APPROX_ITER; count++) {
+                int boxKernelRadius = baseBoxKernelRadius;
+                /**
+                 * If required, increment radius to ensure sum of radii equals total kernel radius
+                 */
+                if (count < radiusIncBreak)
+                    boxKernelRadius++;
+                // System.out.println(boxKernelRadius);
+    
+                boxBlur(boxKernelRadius, grid, grid2);
+                boxBlur(boxKernelRadius, grid2, grid);
+            }
         }
-
         // testNormalizeFactor(baseBoxKernelRadius, radiusIncBreak);
         normalize(grid);
         return grid;
