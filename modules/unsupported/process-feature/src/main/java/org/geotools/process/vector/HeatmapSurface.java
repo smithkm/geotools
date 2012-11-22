@@ -2,7 +2,7 @@
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
  *
- *    (C) 2011, Open Source Geospatial Foundation (OSGeo)
+ *    (C) 2011-2012, Open Source Geospatial Foundation (OSGeo)
  *    (C) 2008-2011 TOPP - www.openplans.org.
  *
  *    This library is free software; you can redistribute it and/or
@@ -15,6 +15,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
+
 package org.geotools.process.vector;
 
 import com.vividsolutions.jts.geom.Envelope;
