@@ -17,6 +17,7 @@
 package org.geotools.process.vector;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.awt.geom.Point2D;
 
@@ -25,6 +26,7 @@ import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Test;
@@ -148,6 +150,65 @@ public class HeatmapProcessTest {
         
         // surface is flat far away
         assertTrue(far < center1 / 1000);
+
+    }
+    
+    /**
+     * Test minimum normalization.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testNormalize() {
+
+        ReferencedEnvelope bounds = new ReferencedEnvelope(0, 10, 0, 10, DefaultGeographicCRS.WGS84);
+        
+        
+        SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
+        tb.setName("data");
+        tb.setCRS(bounds.getCoordinateReferenceSystem());
+        tb.add("shape", Geometry.class);
+        tb.add("value", Double.class);
+
+        SimpleFeatureType type = tb.buildFeatureType();
+        SimpleFeatureBuilder fb = new SimpleFeatureBuilder(type);
+        DefaultFeatureCollection fc = new DefaultFeatureCollection();
+
+        GeometryFactory factory = new GeometryFactory(new PackedCoordinateSequenceFactory());
+
+            Geometry point = factory.createPoint(new Coordinate(4, 4));
+            fb.add(point);
+            fb.add(1.0);
+            fc.add(fb.buildFeature(null));
+            
+            fb.add(JTS.toGeometry(bounds));
+            fb.add(1.0);
+            fc.add(fb.buildFeature(null));
+            
+        ProgressListener monitor = null;
+
+        HeatmapProcess process = new HeatmapProcess();
+        GridCoverage2D cov = process.execute(fc, // data
+                0,  //radius
+                null, // weightAttr
+                1, // pixelsPerCell
+                "envelope", // rasterizeMode
+                true, // normalizeMinimum
+                bounds, // outputEnv
+                100, // outputWidth
+                100, // outputHeight
+                monitor // monitor)
+        );
+        
+        // following tests are checking for an appropriate shape for the surface
+        
+        float center1 = coverageValue(cov, 4, 4);
+        float far = coverageValue(cov, 9, 9);
+        
+        assertEquals(1.0f, center1, 0.0001f);
+
+        // surface is flat far away
+        assertEquals(0.0f, far, 0.0001f);
 
     }
 
