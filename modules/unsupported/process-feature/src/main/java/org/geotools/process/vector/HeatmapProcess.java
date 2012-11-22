@@ -37,6 +37,7 @@ import org.geotools.process.factory.DescribeParameter;
 import org.geotools.process.factory.DescribeProcess;
 import org.geotools.process.factory.DescribeResult;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.operation.projection.ProjectionException;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.coverage.grid.GridGeometry;
 import org.opengis.feature.simple.SimpleFeature;
@@ -382,8 +383,9 @@ public class HeatmapProcess implements VectorProcess {
                     
                     geom=transformer.transform((Geometry) feature.getDefaultGeometry());
                     rasterizer.rasterize(geom, new Float(val));
+                } catch (ProjectionException e){
+                    // Keep trying with other geometries
                 } catch (Exception e) {
-                    // just carry on for now (debugging)
                     throw new ProcessException("Expression " + attrExpr +
                      " failed to evaluate to a numeric value", e);
                 }
