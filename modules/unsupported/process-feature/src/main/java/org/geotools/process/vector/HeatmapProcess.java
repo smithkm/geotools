@@ -165,6 +165,8 @@ public class HeatmapProcess implements VectorProcess {
                 rasterizer = new CentroidGeometryRasterizer();
             } else if(argRasterizeMode.equalsIgnoreCase("envelope")) {
                 rasterizer = new BoundingBoxGeometryRasterizer();
+            } else if(argRasterizeMode.equalsIgnoreCase("line")) {
+                rasterizer = new FastLineGeometryRasterizer();
             } else {
                 throw new ProcessException(String.format("Unknown rasterizeMode for Heatmap: \"%s\"", argRasterizeMode));
             }
