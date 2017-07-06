@@ -98,7 +98,6 @@ abstract class GlyphVectorProcessor {
             super(painter);
 
             // for labels following lines, one can only have one line of text
-            AffineTransform oldTransform = painter.graphics.getTransform();
             LineInfo lineInfo = painter.lines.get(0);
 
             // first off, check if we are walking the line so that the label is
@@ -126,30 +125,27 @@ abstract class GlyphVectorProcessor {
             final double lineHeight = painter.getLineHeight();
             for (LineInfo.LineComponent lineComponent : lineInfo.getComponents()) {
                 GlyphVector gv = lineComponent.getGlyphVector();
-                try {
-                    final int numGlyphs = gv.getNumGlyphs();
-                    float nextAdvance = gv.getGlyphMetrics(0).getAdvance() * 0.5f;
-                    double start = cursor.getCurrentOrdinate();
-                    for (int i = 0; i < numGlyphs; i++) {
-                        Point2D p = gv.getGlyphPosition(i);
-                        float advance = nextAdvance;
-                        nextAdvance = i < numGlyphs - 1
-                                ? gv.getGlyphMetrics(i + 1).getAdvance() * 0.5f
-                                : 0;
-                        c = cursor.getCurrentPosition(c);
-                        AffineTransform t = new AffineTransform();
-                        t.setToTranslation(c.x, c.y);
-                        t.rotate(cursor.getCurrentAngle());
-                        t.translate(-p.getX() - advance, -p.getY() + lineHeight * anchorY);
-                        transforms.add(t);
+                
+                final int numGlyphs = gv.getNumGlyphs();
+                float nextAdvance = gv.getGlyphMetrics(0).getAdvance() * 0.5f;
+                double start = cursor.getCurrentOrdinate();
+                for (int i = 0; i < numGlyphs; i++) {
+                    Point2D p = gv.getGlyphPosition(i);
+                    float advance = nextAdvance;
+                    nextAdvance = i < numGlyphs - 1
+                            ? gv.getGlyphMetrics(i + 1).getAdvance() * 0.5f
+                            : 0;
+                    c = cursor.getCurrentPosition(c);
+                    AffineTransform t = new AffineTransform();
+                    t.setToTranslation(c.x, c.y);
+                    t.rotate(cursor.getCurrentAngle());
+                    t.translate(-p.getX() - advance, -p.getY() + lineHeight * anchorY);
+                    transforms.add(t);
 
-                        cursor.moveTo(cursor.getCurrentOrdinate() + advance + nextAdvance);
-                    }
-                    // take into account eventual spaces at the end of the glyph
-                    cursor.moveTo(start + gv.getGlyphPosition(numGlyphs).getX());
-                } finally {
-                    painter.graphics.setTransform(oldTransform);
+                    cursor.moveTo(cursor.getCurrentOrdinate() + advance + nextAdvance);
                 }
+                // take into account eventual spaces at the end of the glyph
+                cursor.moveTo(start + gv.getGlyphPosition(numGlyphs).getX());
             }
         }
     }
