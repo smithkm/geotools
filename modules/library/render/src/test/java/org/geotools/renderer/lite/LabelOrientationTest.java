@@ -15,6 +15,7 @@ import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.renderer.label.AbstractLabelCache;
 import org.geotools.renderer.label.LabelCacheImpl;
 import org.geotools.styling.Style;
 import org.geotools.test.TestData;
@@ -41,7 +42,7 @@ public class LabelOrientationTest extends TestCase {
         
         renderer = new StreamingRenderer();
         Map rendererParams = new HashMap();
-        LabelCacheImpl labelCache = new LabelCacheImpl();
+        AbstractLabelCache labelCache = new LabelCacheImpl();
         rendererParams.put(StreamingRenderer.LABEL_CACHE_KEY, labelCache);
         renderer.setRendererHints(rendererParams);
         renderer.setJava2DHints(new RenderingHints(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON));

@@ -44,7 +44,7 @@ abstract class GlyphVectorProcessor {
     public boolean process(GlyphProcessor processor, boolean stopIfTrue) {
         int glyphCount = 0;
         boolean ret = false;
-        for (LineInfo lineInfo : painter.lines) {
+        for (LineInfo lineInfo : painter.getLines()) {
             for (LineInfo.LineComponent lineComponent : lineInfo.getComponents()) {
                 GlyphVector glyphVector = lineComponent.getGlyphVector();
                 for (int g = 0; g < glyphVector.getNumGlyphs(); g++, glyphCount++) {
@@ -74,7 +74,7 @@ abstract class GlyphVectorProcessor {
 
         public Straight(LabelPainter painter, AffineTransform tx) {
             super(painter);
-            for (LineInfo lineInfo : painter.lines) {
+            for (LineInfo lineInfo : painter.getLines()) {
                 for (LineInfo.LineComponent lineComponent : lineInfo.getComponents()) {
                     AffineTransform componentTx = new AffineTransform(tx);
                     componentTx.translate(lineComponent.getX(), lineInfo.getY());
@@ -98,7 +98,7 @@ abstract class GlyphVectorProcessor {
             super(painter);
 
             // for labels following lines, one can only have one line of text
-            LineInfo lineInfo = painter.lines.get(0);
+            LineInfo lineInfo = painter.getLines().get(0);
 
             // first off, check if we are walking the line so that the label is
             // looking up, if not, reverse the line

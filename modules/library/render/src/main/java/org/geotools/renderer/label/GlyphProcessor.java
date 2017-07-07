@@ -31,7 +31,7 @@ abstract class GlyphProcessor {
 
     public GlyphProcessor(LabelPainter painter) {
         this.painter = painter;
-        this.labelItem = painter.labelItem;
+        this.labelItem = painter.getLabelItem();
     }
 
     /**

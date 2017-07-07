@@ -44,11 +44,14 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.renderer.label.AbstractLabelCache;
 import org.geotools.renderer.label.LabelCacheImpl;
 import org.geotools.renderer.style.FontCache;
 import org.geotools.styling.Style;
 import org.geotools.test.TestData;
+import org.geotools.util.PropertyRule;
 import org.geotools.util.logging.Logging;
+import org.junit.Rule;
 
 import junit.framework.TestCase;
 
@@ -56,6 +59,10 @@ import junit.framework.TestCase;
  * Confirm functionality of letter level conflict detection.
  */
 public class LetterConflictTest extends TestCase {
+    
+    @Rule
+    PropertyRule disableLetterLevelConflict = PropertyRule.system("org.geotools.labelcache.disableLetterLevelConflict");
+    
     static final Logger LOGGER = Logging.getLogger(LetterConflictTest.class);
     /**
      * Makes the test interactive, showing a Swing dialog with image.
@@ -108,7 +115,7 @@ public class LetterConflictTest extends TestCase {
     private StreamingRenderer getNewRenderer(MapContent context) {
         StreamingRenderer renderer = new StreamingRenderer();
         Map<String,Object> rendererParams = new HashMap<String,Object>();
-        LabelCacheImpl labelCache = new LabelCacheImpl();
+        AbstractLabelCache labelCache = new LabelCacheImpl();
         rendererParams.put(StreamingRenderer.LABEL_CACHE_KEY, labelCache);
         renderer.setRendererHints(rendererParams);
         renderer.setJava2DHints(new RenderingHints(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON));
@@ -117,8 +124,7 @@ public class LetterConflictTest extends TestCase {
     }
 
     public void testLetterConflictEnabled() throws Exception {
-
-        LabelCacheImpl.DISABLE_LETTER_LEVEL_CONFLICT = true;
+        disableLetterLevelConflict.setValue("true");
         Style style = RendererBaseTest.loadStyle(this, "letterConflict20.sld");
         
         MapContent mc = new MapContent();
@@ -128,7 +134,7 @@ public class LetterConflictTest extends TestCase {
         final BufferedImage image1 = RendererBaseTest.renderImage(renderer, bounds1, null);
         mc.dispose();
         
-        LabelCacheImpl.DISABLE_LETTER_LEVEL_CONFLICT = false;
+        disableLetterLevelConflict.setValue("false");
         style = RendererBaseTest.loadStyle(this, "letterConflict20.sld");
         
         mc = new MapContent();
@@ -149,7 +155,7 @@ public class LetterConflictTest extends TestCase {
 
     public void testLetterConflictEnabled2Lines() throws Exception {
 
-        LabelCacheImpl.DISABLE_LETTER_LEVEL_CONFLICT = true;
+        disableLetterLevelConflict.setValue("true");
         Style style = RendererBaseTest.loadStyle(this, "letterConflict20.sld");
         MapContent mc = new MapContent();
         mc.getViewport().setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
@@ -158,7 +164,7 @@ public class LetterConflictTest extends TestCase {
         final BufferedImage image1 = RendererBaseTest.renderImage(renderer, bounds1, null);
         mc.dispose();
         
-        LabelCacheImpl.DISABLE_LETTER_LEVEL_CONFLICT = false;
+        disableLetterLevelConflict.setValue("false");
         style = RendererBaseTest.loadStyle(this, "letterConflict20.sld");
         mc = new MapContent();
         mc.getViewport().setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
@@ -179,7 +185,7 @@ public class LetterConflictTest extends TestCase {
 
     public void testLetterConflictEnabledCurvedLine() throws Exception {
 
-        LabelCacheImpl.DISABLE_LETTER_LEVEL_CONFLICT = true;
+        disableLetterLevelConflict.setValue("true");
         Style style = RendererBaseTest.loadStyle(this, "letterConflict20.sld");
         MapContent mc = new MapContent();
         mc.getViewport().setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
@@ -189,7 +195,7 @@ public class LetterConflictTest extends TestCase {
         final BufferedImage image1 = RendererBaseTest.renderImage(renderer, bounds1, null);
         mc.dispose();
         
-        LabelCacheImpl.DISABLE_LETTER_LEVEL_CONFLICT = false;
+        disableLetterLevelConflict.setValue("false");
         style = RendererBaseTest.loadStyle(this, "letterConflict20.sld");
         mc = new MapContent();
         mc.getViewport().setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
@@ -210,7 +216,7 @@ public class LetterConflictTest extends TestCase {
 
     public void testLetterConflictEnabledPerf() throws Exception {
         synchronized (LabelCacheImpl.class) {
-            LabelCacheImpl.DISABLE_LETTER_LEVEL_CONFLICT = true;
+            disableLetterLevelConflict.setValue("true");
             Style style = RendererBaseTest.loadStyle(this, "letterConflict6.sld");
             MapContent mc = new MapContent();
             mc.getViewport().setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
@@ -231,7 +237,7 @@ public class LetterConflictTest extends TestCase {
             LOGGER.fine("time false " + ta / 10000000);
             mc.dispose();
 
-            LabelCacheImpl.DISABLE_LETTER_LEVEL_CONFLICT = false;
+            disableLetterLevelConflict.setValue("false");
             mc = new MapContent();
             mc.getViewport().setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
             mc.addLayer( new FeatureLayer( fs_line4, style));

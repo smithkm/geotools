@@ -38,7 +38,9 @@ import org.opengis.feature.Feature;
  * @source $URL$
  */
 public interface LabelCache {
-	/**
+
+
+    /**
 	 * Called by renderer to indicate that the rendering process is starting.
 	 */
 	void start();

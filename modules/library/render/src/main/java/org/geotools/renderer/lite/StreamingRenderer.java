@@ -102,8 +102,9 @@ import org.geotools.renderer.RenderListener;
 import org.geotools.renderer.ScreenMap;
 import org.geotools.renderer.crs.ProjectionHandler;
 import org.geotools.renderer.crs.ProjectionHandlerFinder;
+import org.geotools.renderer.label.AbstractLabelCache;
 import org.geotools.renderer.label.LabelCacheImpl;
-import org.geotools.renderer.label.LabelCacheImpl.LabelRenderingMode;
+import org.geotools.renderer.label.AbstractLabelCache.LabelRenderingMode;
 import org.geotools.renderer.lite.gridcoverage2d.GridCoverageReaderHelper;
 import org.geotools.renderer.lite.gridcoverage2d.GridCoverageRenderer;
 import org.geotools.renderer.style.LineStyle2D;
@@ -294,19 +295,19 @@ public class StreamingRenderer implements GTRenderer {
      * the text in other applications. The downside is that on most platform the label
      * and its eventual halo are not properly centered.
      */
-    public static final String TEXT_RENDERING_STRING = LabelCacheImpl.LabelRenderingMode.STRING.name();
+    public static final String TEXT_RENDERING_STRING = AbstractLabelCache.LabelRenderingMode.STRING.name();
 
     /**
      * Text will be rendered using the associated {@link GlyphVector} outline, that is, a {@link Shape}.
      * This ensures perfect centering between the text and the halo, but introduces more text aliasing.
      */
-    public static final String TEXT_RENDERING_OUTLINE = LabelCacheImpl.LabelRenderingMode.OUTLINE.name();
+    public static final String TEXT_RENDERING_OUTLINE = AbstractLabelCache.LabelRenderingMode.OUTLINE.name();
     
     /**
      * Will use STRING mode for horizontal labels, OUTLINE mode for all other labels.
      * Works best when coupled with {@link RenderingHints#VALUE_FRACTIONALMETRICS_ON}
      */
-    public static final String TEXT_RENDERING_ADAPTIVE = LabelCacheImpl.LabelRenderingMode.ADAPTIVE.name();
+    public static final String TEXT_RENDERING_ADAPTIVE = AbstractLabelCache.LabelRenderingMode.ADAPTIVE.name();
 
     /**
      * The text rendering method, either TEXT_RENDERING_OUTLINE or TEXT_RENDERING_STRING
@@ -454,7 +455,7 @@ public class StreamingRenderer implements GTRenderer {
     public void addRenderListener(RenderListener listener) {
         renderListeners.add(listener);
         if(labelCache instanceof LabelCacheImpl) {
-            ((LabelCacheImpl) labelCache).addRenderListener(listener);
+            ((AbstractLabelCache) labelCache).addRenderListener(listener);
         }
     }
 
@@ -796,7 +797,7 @@ public class StreamingRenderer implements GTRenderer {
                 // ////////////////////////////////////////////////////////////////////
                 labelCache.start();
                 if(labelCache instanceof LabelCacheImpl) {
-                    ((LabelCacheImpl) labelCache).setLabelRenderingMode(LabelRenderingMode.valueOf(getTextRenderingMethod()));
+                    ((AbstractLabelCache) labelCache).setLabelRenderingMode(LabelRenderingMode.valueOf(getTextRenderingMethod()));
                 }
                 
                 for (Layer layer : currentMapContent.layers()) {

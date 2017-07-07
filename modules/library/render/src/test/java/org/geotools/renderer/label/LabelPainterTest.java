@@ -26,12 +26,11 @@ import java.awt.geom.AffineTransform;
 
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
-import org.geotools.renderer.label.LabelCacheImpl.LabelRenderingMode;
+import org.geotools.renderer.label.AbstractLabelCache.LabelRenderingMode;
 import org.geotools.renderer.style.TextStyle2D;
 import org.geotools.styling.StyleFactory;
 import org.geotools.styling.StyleFactoryImpl;
 import org.geotools.styling.TextSymbolizer;
-import org.geotools.styling.TextSymbolizerImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

@@ -22,7 +22,7 @@ import com.vividsolutions.jts.geom.LineString;
 import org.geotools.geometry.jts.LiteShape;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.geometry.jts.TransformedShape;
-import org.geotools.renderer.label.LabelCacheImpl.LabelRenderingMode;
+import org.geotools.renderer.label.AbstractLabelCache.LabelRenderingMode;
 import org.geotools.renderer.label.LabelCacheItem.GraphicResize;
 import org.geotools.renderer.label.LineInfo.LineComponent;
 import org.geotools.renderer.lite.StyledShapePainter;
@@ -66,17 +66,25 @@ public class LabelPainter {
     /**
      * Delegate shape painter used to paint the graphics below the text
      */
-    StyledShapePainter shapePainter = new StyledShapePainter();
+    private StyledShapePainter shapePainter = new StyledShapePainter();
 
     /**
      * The current label we're tring to draw
      */
-    LabelCacheItem labelItem;
+    private LabelCacheItem labelItem;
+
+    public LabelCacheItem getLabelItem() {
+        return labelItem;
+    }
+
+    public List<LineInfo> getLines() {
+        return lines;
+    }
 
     /**
      * The lines in which the label has been split (if any)
      */
-    List<LineInfo> lines;
+    private List<LineInfo> lines;
 
     /**
      * The graphics object used during painting
@@ -87,22 +95,22 @@ public class LabelPainter {
      * Whether we draw text using its {@link Shape} outline, or we use a plain
      * {@link Graphics2D#drawGlyphVector(GlyphVector, float, float)} instead
      */
-    LabelRenderingMode labelRenderingMode;
+    private LabelRenderingMode labelRenderingMode;
 
     /**
      * Used to build JTS geometries during label painting
      */
-    GeometryFactory gf = new GeometryFactory();
+    private GeometryFactory gf = new GeometryFactory();
 
     /**
      * The cached label bounds
      */
-    Rectangle2D labelBounds;
+    private Rectangle2D labelBounds;
 
     /**
      * The class in charge of splitting the labels in multiple lines/scripts/fonts
      */
-    LabelSplitter splitter = new LabelSplitter();
+    private LabelSplitter splitter = new LabelSplitter();
 
     /**
      * Builds a new painter
