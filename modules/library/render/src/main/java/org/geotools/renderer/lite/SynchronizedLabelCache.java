@@ -36,15 +36,15 @@ import org.opengis.feature.Feature;
  *
  * @source $URL$
  */
-public class SynchronizedLabelCache implements LabelCache {
+public class SynchronizedLabelCache implements LabelCache<Graphics2D> {
 
-    private final LabelCache wrapped;
+    private final LabelCache<Graphics2D> wrapped;
 
     public SynchronizedLabelCache() {
         this(new LabelCacheImpl());
     }
 
-    public SynchronizedLabelCache(LabelCache cache) {
+    public SynchronizedLabelCache(LabelCache<Graphics2D> cache) {
         wrapped = cache;
     }
 

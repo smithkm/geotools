@@ -33,7 +33,6 @@ import static org.geotools.styling.TextSymbolizer.SPACE_AROUND_KEY;
 import static org.geotools.styling.TextSymbolizer.UNDERLINE_TEXT_KEY;
 
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -56,6 +55,7 @@ import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.renderer.RenderListener;
 import org.geotools.renderer.VendorOptionParser;
 import org.geotools.renderer.label.LabelCacheItem.GraphicResize;
+import org.geotools.renderer.lite.LabelCache;
 import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.TextStyle2D;
 import org.geotools.styling.TextSymbolizer;
@@ -81,7 +81,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.operation.linemerge.LineMerger;
 
-public abstract class AbstractLabelCache<T> {
+public abstract class AbstractLabelCache<T> implements LabelCache<T> {
     
     static final Logger LOGGER = Logging.getLogger(AbstractLabelCache.class);
     
@@ -251,7 +251,7 @@ public abstract class AbstractLabelCache<T> {
      * @see org.geotools.renderer.lite.LabelCache#put(String,TextSymbolizer,Feature,
      *      LiteShape2,NumberRange)
      */
-    public void put(String layerId, TextSymbolizer symbolizer, Feature feature, LiteShape2 shape, NumberRange scaleRange) {
+    public void put(String layerId, TextSymbolizer symbolizer, Feature feature, LiteShape2 shape, NumberRange<Double> scaleRange) {
         needsOrdering = true;
         try {
             // get label and geometry
@@ -301,7 +301,7 @@ public abstract class AbstractLabelCache<T> {
     }
 
     private LabelCacheItem buildLabelCacheItem(String layerId, TextSymbolizer symbolizer, Feature feature, LiteShape2 shape,
-            NumberRange scaleRange, String label, double priorityValue) {
+            NumberRange<Double> scaleRange, String label, double priorityValue) {
                 TextStyle2D textStyle = (TextStyle2D) styleFactory.createStyle(feature, symbolizer,
                         scaleRange);
             
@@ -477,14 +477,12 @@ public abstract class AbstractLabelCache<T> {
                 final Rectangle2D textBounds = painter.getFullLabelBounds();
                 // ... use at least a 8 pixel step (curved processing is quite expensive), no matter what the label length is
                 final double step = painter.getLineHeight() > 8 ? painter.getLineHeight() : 8;
-                int space = labelItem.getSpaceAround();
                 // repetition distance, if any
                 int labelDistance = labelItem.getRepeat();
                 if(labelDistance > 0 && labelItem.isFollowLineEnabled()) {
                     labelDistance += textBounds.getWidth();
                 }
                 // min distance, if any
-                int minDistance = labelItem.getMinGroupDistance();
                 LabelIndex groupLabels = new LabelIndex();
                 // Max displacement for the current label
                 double labelOffset = labelItem.getMaxDisplacement();
@@ -1642,6 +1640,7 @@ public abstract class AbstractLabelCache<T> {
         LineMerger lm = new LineMerger();
         lm.add(lines);
         // build merged lines
+        @SuppressWarnings("unchecked")
         List<LineString> merged = new ArrayList<LineString>(lm.getMergedLineStrings()); 
     
         if (merged.size() == 0) {

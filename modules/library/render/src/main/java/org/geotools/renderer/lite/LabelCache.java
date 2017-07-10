@@ -37,7 +37,7 @@ import org.opengis.feature.Feature;
  *
  * @source $URL$
  */
-public interface LabelCache {
+public interface LabelCache<T> {
 
 
     /**
@@ -83,7 +83,7 @@ public interface LabelCache {
 	 * @param displayArea The size of the display area
 	 * @param layerId an id for the layer
 	 */
-	void endLayer(String layerId, Graphics2D graphics, Rectangle displayArea);
+	void endLayer(String layerId, T graphics, Rectangle displayArea);
 	
 	/**
 	 * Called to indicate that the map is done rendering.  The method may draw labels if appropriate
@@ -92,7 +92,7 @@ public interface LabelCache {
 	 * @param graphics the graphics to draw on.
 	 * @param displayArea The size of the display area.
 	 */
-	void end(Graphics2D graphics, Rectangle displayArea);
+	void end(T graphics, Rectangle displayArea);
 	
 	/**
 	 * Tells the cache to stop labelling.  

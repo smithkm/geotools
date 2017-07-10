@@ -63,7 +63,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *
  * @source $URL$
  */
-public final class LabelCacheImpl extends AbstractLabelCache<Graphics2D> implements LabelCache {
+public final class LabelCacheImpl extends AbstractLabelCache<Graphics2D> {
     
     static final Logger LOGGER = Logging.getLogger(LabelCacheImpl.class);
 
