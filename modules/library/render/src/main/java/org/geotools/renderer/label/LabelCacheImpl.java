@@ -16,10 +16,9 @@
  */
 package org.geotools.renderer.label;
 
-import static org.geotools.styling.TextSymbolizer.*;
-
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.util.List;
 import java.util.logging.Level;
@@ -64,7 +63,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *
  * @source $URL$
  */
-public final class LabelCacheImpl extends AbstractLabelCache implements LabelCache {
+public final class LabelCacheImpl extends AbstractLabelCache<Graphics2D> implements LabelCache {
     
     static final Logger LOGGER = Logging.getLogger(LabelCacheImpl.class);
 
@@ -166,6 +165,31 @@ public final class LabelCacheImpl extends AbstractLabelCache implements LabelCac
         LOGGER.log(Level.FINE, "TOTAL LINE LABELS : {0}", items.size());
         LOGGER.log(Level.FINE, "PAINTED LINE LABELS : {0}", paintedLineLabels);
         LOGGER.log(Level.FINE, "REMAINING LINE LABELS : {0}", nonPaintedLineLabels);
+    }
+
+    @Override
+    public void end(Graphics2D graphics, Rectangle displayArea) {
+        final Object antialiasing = graphics.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+        final Object textAntialiasing = graphics
+                .getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING);
+        try {
+            // if we are asked to antialias only text but we're drawing using
+            // the outline
+            // method, we need to re-enable graphics antialiasing during label
+            // painting
+            if (labelRenderingMode != LabelRenderingMode.STRING 
+                    && antialiasing == RenderingHints.VALUE_ANTIALIAS_OFF
+                    && textAntialiasing == RenderingHints.VALUE_TEXT_ANTIALIAS_ON) {
+                graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
+            }
+            paintLabels(graphics, displayArea);
+        } finally {
+            if (antialiasing != null) {
+                graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                        antialiasing);
+            }
+        }
     }
 
 

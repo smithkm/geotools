@@ -32,9 +32,6 @@ import static org.geotools.styling.TextSymbolizer.POLYGONALIGN_KEY;
 import static org.geotools.styling.TextSymbolizer.SPACE_AROUND_KEY;
 import static org.geotools.styling.TextSymbolizer.UNDERLINE_TEXT_KEY;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.font.GlyphVector;
@@ -59,7 +56,6 @@ import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.renderer.RenderListener;
 import org.geotools.renderer.VendorOptionParser;
 import org.geotools.renderer.label.LabelCacheItem.GraphicResize;
-import org.geotools.renderer.lite.LabelCache;
 import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.TextStyle2D;
 import org.geotools.styling.TextSymbolizer;
@@ -85,7 +81,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.operation.linemerge.LineMerger;
 
-public abstract class AbstractLabelCache {
+public abstract class AbstractLabelCache<T> {
     
     static final Logger LOGGER = Logging.getLogger(AbstractLabelCache.class);
     
@@ -116,7 +112,7 @@ public abstract class AbstractLabelCache {
     
     double[] LEFT_ANCHOR_CANDIDATES = new double[] {1,0.5, 1,0, 1,1};
     
-    LabelRenderingMode labelRenderingMode = LabelRenderingMode.STRING;
+    protected LabelRenderingMode labelRenderingMode = LabelRenderingMode.STRING;
     
     SLDStyleFactory styleFactory = new SLDStyleFactory();
     boolean stop = false;
@@ -153,9 +149,9 @@ public abstract class AbstractLabelCache {
         super();
     }
 
-    protected abstract void paintLabels(Graphics2D graphics, Rectangle displayArea);
+    protected abstract void paintLabels(T graphics, Rectangle displayArea);
 
-    public abstract void endLayer(String layerId, Graphics2D graphics, Rectangle displayArea);
+    public abstract void endLayer(String layerId, T graphics, Rectangle displayArea);
 
     public void enableLayer(String layerId) {
         needsOrdering = true;
@@ -384,29 +380,7 @@ public abstract class AbstractLabelCache {
      * @see org.geotools.renderer.lite.LabelCache#end(java.awt.Graphics2D,
      *      java.awt.Rectangle)
      */
-    public void end(Graphics2D graphics, Rectangle displayArea) {
-        final Object antialiasing = graphics.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
-        final Object textAntialiasing = graphics
-                .getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING);
-        try {
-            // if we are asked to antialias only text but we're drawing using
-            // the outline
-            // method, we need to re-enable graphics antialiasing during label
-            // painting
-            if (labelRenderingMode != LabelRenderingMode.STRING 
-                    && antialiasing == RenderingHints.VALUE_ANTIALIAS_OFF
-                    && textAntialiasing == RenderingHints.VALUE_TEXT_ANTIALIAS_ON) {
-                graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON);
-            }
-            paintLabels(graphics, displayArea);
-        } finally {
-            if (antialiasing != null) {
-                graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                        antialiasing);
-            }
-        }
-    }
+    public abstract void end(T graphics, Rectangle displayArea);
 
     private Envelope toEnvelope(Rectangle2D bounds) {
         return new Envelope(bounds.getMinX(), bounds.getMaxX(), bounds.getMinY(), bounds.getMaxY());
@@ -654,8 +628,6 @@ public abstract class AbstractLabelCache {
             
                                 if(labelItem.isConflictResolutionEnabled()) {
                                     if(DEBUG_CACHE_BOUNDS) {
-                                        painter.graphics.setStroke(new BasicStroke());
-                                        painter.graphics.setColor(Color.RED);
                                         glyphVectorProcessor.process(new GlyphProcessor.BoundsPainter(painter));
                                     }
             
@@ -855,9 +827,7 @@ public abstract class AbstractLabelCache {
                                 groupLabels.addLabel(labelItem, labelEnvelope);
                                 if(labelItem.isConflictResolutionEnabled()) {
                                     if(DEBUG_CACHE_BOUNDS) {
-                                        painter.graphics.setStroke(new BasicStroke());
-                                        painter.graphics.setColor(Color.RED);
-                                        painter.graphics.draw(labelEnvelope);
+                                        painter.debug(labelEnvelope);
                                     }
                                     paintedBounds.addLabel(labelItem, labelEnvelope);
                                 }
@@ -1118,9 +1088,7 @@ public abstract class AbstractLabelCache {
                 } else {
                     painter.paintStraightLabel(tempTransform);
                     if(DEBUG_CACHE_BOUNDS) {
-                        painter.graphics.setStroke(new BasicStroke());
-                        painter.graphics.setColor(Color.RED);
-                        painter.graphics.draw(transformed);
+                        painter.debug(transformed);
                     }
                     if(labelItem.isConflictResolutionEnabled())
                         glyphs.addLabel(labelItem, transformed);
@@ -1280,9 +1248,7 @@ public abstract class AbstractLabelCache {
                 }
                     
                 if(DEBUG_CACHE_BOUNDS) {
-                    painter.graphics.setStroke(new BasicStroke());
-                    painter.graphics.setColor(Color.RED);
-                    painter.graphics.draw(transformed);
+                    painter.debug(transformed);
                 }
                 painter.paintStraightLabel(tempTransform);
                 if(labelItem.isConflictResolutionEnabled()) {

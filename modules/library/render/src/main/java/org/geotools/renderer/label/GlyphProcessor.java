@@ -57,7 +57,7 @@ abstract class GlyphProcessor {
         public boolean process(GlyphVector glyphVector, int g, AffineTransform tx, char c) {
             if (Character.isWhitespace(c))
                 return false;
-            painter.graphics.draw(tx
+            painter.debug(tx
                     .createTransformedShape(glyphVector.getGlyphOutline(g))
                     .getBounds2D());
             return true;

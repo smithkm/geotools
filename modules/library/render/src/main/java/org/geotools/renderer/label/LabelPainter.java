@@ -817,5 +817,11 @@ public class LabelPainter {
         return labelAngle >= 0 && labelAngle < Math.PI;
     }
 
+    protected void debug(Rectangle2D labelEnvelope) {
+        graphics.setStroke(new BasicStroke());
+        graphics.setColor(Color.RED);
+        graphics.draw(labelEnvelope);
+    }
+
 
 }
