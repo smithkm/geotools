@@ -30,9 +30,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 abstract class GlyphVectorProcessor {
 
     List<AffineTransform> transforms;
-    LabelPainter painter;
+    ILabelPainter painter;
 
-    public GlyphVectorProcessor(LabelPainter painter) {
+    public GlyphVectorProcessor(ILabelPainter painter) {
         transforms = new ArrayList<>();
         this.painter = painter;
     }
@@ -72,7 +72,7 @@ abstract class GlyphVectorProcessor {
      */
     public static class Straight extends GlyphVectorProcessor {
 
-        public Straight(LabelPainter painter, AffineTransform tx) {
+        public Straight(ILabelPainter painter, AffineTransform tx) {
             super(painter);
             for (LineInfo lineInfo : painter.getLines()) {
                 for (LineInfo.LineComponent lineComponent : lineInfo.getComponents()) {

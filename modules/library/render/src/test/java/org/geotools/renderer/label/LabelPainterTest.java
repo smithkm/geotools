@@ -66,7 +66,7 @@ public class LabelPainterTest {
     
     @Test
     public void testEmptyLinesInLabel() {
-        LabelPainter painter = new LabelPainter(graphics, LabelRenderingMode.STRING);
+        ILabelPainter painter = new LabelPainter(graphics, LabelRenderingMode.STRING);
         LabelCacheItem labelItem = new LabelCacheItem("LAYERID", style, shape,
                 "line1\n\nline2", symbolizer);
         labelItem.setAutoWrap(0);
@@ -76,7 +76,7 @@ public class LabelPainterTest {
     
     @Test
     public void testEmptyLinesInLabelWithAutoWrap() {
-        LabelPainter painter = new LabelPainter(graphics, LabelRenderingMode.STRING);
+        ILabelPainter painter = new LabelPainter(graphics, LabelRenderingMode.STRING);
         LabelCacheItem labelItem = new LabelCacheItem("LAYERID", style, shape,
                 "line1\n\nline2", symbolizer);
         labelItem.setAutoWrap(100);
@@ -86,7 +86,7 @@ public class LabelPainterTest {
     
     @Test
     public void testOnlyNewlines() {
-        LabelPainter painter = new LabelPainter(graphics, LabelRenderingMode.STRING);
+        ILabelPainter painter = new LabelPainter(graphics, LabelRenderingMode.STRING);
         LabelCacheItem labelItem = new LabelCacheItem("LAYERID", style, shape,
                 "\n\n", symbolizer);
         labelItem.setAutoWrap(100);

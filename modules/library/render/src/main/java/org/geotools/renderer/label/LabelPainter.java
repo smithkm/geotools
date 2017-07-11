@@ -56,7 +56,7 @@ import java.util.List;
  *
  * @source $URL$
  */
-public class LabelPainter {
+public class LabelPainter implements ILabelPainter {
     
     /**
      * Epsilon used for comparisons with 0
@@ -73,10 +73,12 @@ public class LabelPainter {
      */
     private LabelCacheItem labelItem;
 
+    @Override
     public LabelCacheItem getLabelItem() {
         return labelItem;
     }
 
+    @Override
     public List<LineInfo> getLines() {
         return lines;
     }
@@ -130,6 +132,7 @@ public class LabelPainter {
      * 
      * @param labelItem
      */
+    @Override
     public void setLabel(LabelCacheItem labelItem) {
         this.labelItem = labelItem;
         TextStyle2D textStyle = labelItem.getTextStyle();
@@ -205,6 +208,7 @@ public class LabelPainter {
      * 
      * @return
      */
+    @Override
     public LabelCacheItem getLabel() {
         return labelItem;
     }
@@ -215,6 +219,7 @@ public class LabelPainter {
      * 
      * @return
      */
+    @Override
     public double getLineHeight() {
         return lines.get(0).getLineHeight();
     }
@@ -223,6 +228,7 @@ public class LabelPainter {
      * The full size above the baseline 
      * @return
      */
+    @Override
     public double getAscent() {
         return lines.get(0).getAscent();
     }
@@ -232,6 +238,7 @@ public class LabelPainter {
      * 
      * @return
      */
+    @Override
     public int getStraightLabelWidth() {
         return (int) Math.round(getLabelBounds().getWidth());
     }
@@ -242,6 +249,7 @@ public class LabelPainter {
      * 
      * @return
      */
+    @Override
     public int getLineCount() {
         return lines.size();
     }
@@ -252,6 +260,7 @@ public class LabelPainter {
      * 
      * @return
      */
+    @Override
     public Rectangle2D getFullLabelBounds() {
         // base bounds (clone them, we're going to alter the bounds directly)
         Rectangle2D bounds = (Rectangle2D) getLabelBounds().clone();
@@ -319,6 +328,7 @@ public class LabelPainter {
      * 
      * @return
      */
+    @Override
     public Rectangle2D getLabelBounds() {
         return labelBounds;
     }
@@ -330,6 +340,7 @@ public class LabelPainter {
      * @param transform
      * @throws Exception
      */
+    @Override
     public void paintStraightLabel(AffineTransform transform) throws Exception {
         AffineTransform oldTransform = graphics.getTransform();
         try {
@@ -614,6 +625,7 @@ public class LabelPainter {
      * 
      * @param cursor
      */
+    @Override
     public void paintCurvedLabel(LineStringCursor cursor) {
         // 0 is unfortunately an acceptable value if people only want to draw shields
         if(labelItem.getTextStyle().getFont().getSize() == 0)
@@ -787,6 +799,7 @@ public class LabelPainter {
      * affected by the full ascent or the full descent. This method tries to
      * computes the y anchor taking into account those.
      */
+    @Override
     public double getLinePlacementYAnchor() {
         TextStyle2D textStyle = getLabel().getTextStyle();
         LineMetrics lm = textStyle.getFont().getLineMetrics(textStyle.getLabel(),
@@ -817,7 +830,8 @@ public class LabelPainter {
         return labelAngle >= 0 && labelAngle < Math.PI;
     }
 
-    protected void debug(Rectangle2D labelEnvelope) {
+    @Override
+    public void debug(Rectangle2D labelEnvelope) {
         graphics.setStroke(new BasicStroke());
         graphics.setColor(Color.RED);
         graphics.draw(labelEnvelope);
