@@ -110,7 +110,7 @@ public final class LabelCacheImpl extends AbstractLabelCache<Graphics2D> {
         } else {
             items = getActiveLabels();
         }
-        LabelPainter painter = new LabelPainter(graphics, labelRenderingMode);
+        ILabelPainter painter = new LabelPainter(graphics, labelRenderingMode);
         for (LabelCacheItem labelItem : items) {
             if (stop)
                 return;

@@ -822,7 +822,8 @@ public class LabelPainter implements ILabelPainter {
      * @param cursor
      * @return
      */
-    boolean isLabelUpwards(LineStringCursor cursor) {
+    @Override
+    public boolean isLabelUpwards(LineStringCursor cursor) {
         // label angle is orthogonal to the line direction
         double labelAngle = cursor.getCurrentAngle() + Math.PI / 2;
         // normalize the angle so that it's comprised between 0 and 360°

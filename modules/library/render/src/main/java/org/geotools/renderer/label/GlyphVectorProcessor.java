@@ -94,7 +94,7 @@ abstract class GlyphVectorProcessor {
      */
     public static class Curved extends GlyphVectorProcessor {
 
-        public Curved(LabelPainter painter, LineStringCursor cursor) {
+        public Curved(ILabelPainter painter, LineStringCursor cursor) {
             super(painter);
 
             // for labels following lines, one can only have one line of text

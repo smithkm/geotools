@@ -96,6 +96,20 @@ public interface ILabelPainter {
      */
     double getLinePlacementYAnchor();
 
+    /**
+     * Add a representation of the given extent to the output for debugging.
+     * @param labelEnvelope
+     */
     void debug(Rectangle2D labelEnvelope);
+
+    /**
+     * Returns true if a label placed in the current cursor position would look
+     * upwards or not, defining upwards a label whose bottom to top direction is
+     * greater than zero, and less or equal to 180 degrees.
+     * 
+     * @param cursor
+     * @return
+     */
+    boolean isLabelUpwards(LineStringCursor cursor);
 
 }

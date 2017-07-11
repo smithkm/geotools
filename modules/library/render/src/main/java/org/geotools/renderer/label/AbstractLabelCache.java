@@ -458,7 +458,7 @@ public abstract class AbstractLabelCache<T> implements LabelCache<T> {
         return 0.0;
     }
 
-    protected boolean paintLineLabelsWithLetterConflict(LabelPainter painter, AffineTransform originalTransform, Rectangle displayArea,
+    protected boolean paintLineLabelsWithLetterConflict(ILabelPainter painter, AffineTransform originalTransform, Rectangle displayArea,
             LabelIndex paintedBounds) throws Exception {
                 final LabelCacheItem labelItem = painter.getLabel();
                 List<LineString> lines = getLineSetRepresentativeLocation(
