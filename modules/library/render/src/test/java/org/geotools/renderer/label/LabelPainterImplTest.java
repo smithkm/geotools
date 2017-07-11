@@ -40,7 +40,7 @@ import org.opengis.referencing.operation.TransformException;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
-public class LabelPainterTest {
+public class LabelPainterImplTest {
 
     private static GeometryFactory geometryFactory = new GeometryFactory();
     private static StyleFactory styleFactory = new StyleFactoryImpl();
@@ -66,7 +66,7 @@ public class LabelPainterTest {
     
     @Test
     public void testEmptyLinesInLabel() {
-        ILabelPainter painter = new LabelPainter(graphics, LabelRenderingMode.STRING);
+        LabelPainter painter = new LabelPainterImpl(graphics, LabelRenderingMode.STRING);
         LabelCacheItem labelItem = new LabelCacheItem("LAYERID", style, shape,
                 "line1\n\nline2", symbolizer);
         labelItem.setAutoWrap(0);
@@ -76,7 +76,7 @@ public class LabelPainterTest {
     
     @Test
     public void testEmptyLinesInLabelWithAutoWrap() {
-        ILabelPainter painter = new LabelPainter(graphics, LabelRenderingMode.STRING);
+        LabelPainter painter = new LabelPainterImpl(graphics, LabelRenderingMode.STRING);
         LabelCacheItem labelItem = new LabelCacheItem("LAYERID", style, shape,
                 "line1\n\nline2", symbolizer);
         labelItem.setAutoWrap(100);
@@ -86,7 +86,7 @@ public class LabelPainterTest {
     
     @Test
     public void testOnlyNewlines() {
-        ILabelPainter painter = new LabelPainter(graphics, LabelRenderingMode.STRING);
+        LabelPainter painter = new LabelPainterImpl(graphics, LabelRenderingMode.STRING);
         LabelCacheItem labelItem = new LabelCacheItem("LAYERID", style, shape,
                 "\n\n", symbolizer);
         labelItem.setAutoWrap(100);

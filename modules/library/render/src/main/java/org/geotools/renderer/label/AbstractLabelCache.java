@@ -402,7 +402,7 @@ public abstract class AbstractLabelCache<T> implements LabelCache<T> {
      *
      * @return
      */
-    private double goodnessOfFit(ILabelPainter painter, AffineTransform transform, PreparedGeometry representativeGeom) {
+    private double goodnessOfFit(LabelPainter painter, AffineTransform transform, PreparedGeometry representativeGeom) {
         if (representativeGeom.getGeometry() instanceof Point) {
             return 1.0;
         }
@@ -458,7 +458,7 @@ public abstract class AbstractLabelCache<T> implements LabelCache<T> {
         return 0.0;
     }
 
-    protected boolean paintLineLabelsWithLetterConflict(ILabelPainter painter, AffineTransform originalTransform, Rectangle displayArea,
+    protected boolean paintLineLabelsWithLetterConflict(LabelPainter painter, AffineTransform originalTransform, Rectangle displayArea,
             LabelIndex paintedBounds) throws Exception {
                 final LabelCacheItem labelItem = painter.getLabel();
                 List<LineString> lines = getLineSetRepresentativeLocation(
@@ -663,7 +663,7 @@ public abstract class AbstractLabelCache<T> implements LabelCache<T> {
         }
     }
 
-    protected boolean paintLineLabels(ILabelPainter painter, AffineTransform originalTransform, Rectangle displayArea, LabelIndex paintedBounds)
+    protected boolean paintLineLabels(LabelPainter painter, AffineTransform originalTransform, Rectangle displayArea, LabelIndex paintedBounds)
             throws Exception {
                 final LabelCacheItem labelItem = painter.getLabel();
                 List<LineString> lines = getLineSetRepresentativeLocation(
@@ -886,7 +886,7 @@ public abstract class AbstractLabelCache<T> implements LabelCache<T> {
      * @param textStyle
      * @param painter
      */
-    private void setupPointTransform(AffineTransform tempTransform, Point centroid, TextStyle2D textStyle, ILabelPainter painter) {
+    private void setupPointTransform(AffineTransform tempTransform, Point centroid, TextStyle2D textStyle, LabelPainter painter) {
         
         tempTransform.translate(centroid.getX(), centroid.getY());
         
@@ -921,7 +921,7 @@ public abstract class AbstractLabelCache<T> implements LabelCache<T> {
      * @param tempTransform
      * @param followLine
      */
-    private void setupLineTransform(ILabelPainter painter, LineStringCursor cursor, Coordinate centroid, AffineTransform tempTransform,
+    private void setupLineTransform(LabelPainter painter, LineStringCursor cursor, Coordinate centroid, AffineTransform tempTransform,
             boolean followLine) {
                 tempTransform.translate(centroid.x, centroid.y);
             
@@ -966,7 +966,7 @@ public abstract class AbstractLabelCache<T> implements LabelCache<T> {
      * a search for a better position is tried on concentric circles around the label
      * up until the radius of the circle becomes bigger than the max displacement
      */
-    protected boolean paintPointLabel(ILabelPainter painter, AffineTransform tempTransform, Rectangle displayArea, LabelIndex glyphs)
+    protected boolean paintPointLabel(LabelPainter painter, AffineTransform tempTransform, Rectangle displayArea, LabelIndex glyphs)
             throws Exception {
                 LabelCacheItem labelItem = painter.getLabel();
                 // get the point onto the shape has to be painted
@@ -1072,7 +1072,7 @@ public abstract class AbstractLabelCache<T> implements LabelCache<T> {
      * @return
      * @throws Exception
      */
-    private boolean paintPointLabelInternal(ILabelPainter painter, AffineTransform tempTransform, Rectangle displayArea, LabelIndex glyphs,
+    private boolean paintPointLabelInternal(LabelPainter painter, AffineTransform tempTransform, Rectangle displayArea, LabelIndex glyphs,
             LabelCacheItem labelItem, Point point, TextStyle2D textStyle) throws Exception {
                 setupPointTransform(tempTransform, point, textStyle, painter);
             
@@ -1100,7 +1100,7 @@ public abstract class AbstractLabelCache<T> implements LabelCache<T> {
      * TODO: handle lineplacement for a polygon (perhaps we're supposed to grab
      * the outside line and label it, but spec is unclear)
      */
-    protected boolean paintPolygonLabel(ILabelPainter painter, AffineTransform tempTransform, Rectangle displayArea, LabelIndex glyphs)
+    protected boolean paintPolygonLabel(LabelPainter painter, AffineTransform tempTransform, Rectangle displayArea, LabelIndex glyphs)
             throws Exception {
                 LabelCacheItem labelItem = painter.getLabel();
                 Polygon geom = getPolySetRepresentativeLocation(labelItem.getGeoms(), displayArea, labelItem.isPartialsEnabled());
@@ -1212,7 +1212,7 @@ public abstract class AbstractLabelCache<T> implements LabelCache<T> {
                 
             }
 
-    private boolean paintPolygonLabelInternal(ILabelPainter painter, AffineTransform tempTransform, Rectangle displayArea, LabelIndex glyphs,
+    private boolean paintPolygonLabelInternal(LabelPainter painter, AffineTransform tempTransform, Rectangle displayArea, LabelIndex glyphs,
             LabelCacheItem labelItem, PreparedGeometry pg, Point centroid, TextStyle2DExt textStyle) throws Exception {
                 // useful to debug the label/centroid relationship 
                 // painter.graphics.setColor(Color.RED);

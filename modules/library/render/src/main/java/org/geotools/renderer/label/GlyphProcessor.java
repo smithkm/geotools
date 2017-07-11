@@ -26,10 +26,10 @@ import java.awt.geom.Rectangle2D;
  */
 abstract class GlyphProcessor {
 
-    ILabelPainter painter;
+    LabelPainter painter;
     LabelCacheItem labelItem;
 
-    public GlyphProcessor(ILabelPainter painter) {
+    public GlyphProcessor(LabelPainter painter) {
         this.painter = painter;
         this.labelItem = painter.getLabelItem();
     }
@@ -50,7 +50,7 @@ abstract class GlyphProcessor {
      */
     public static class BoundsPainter extends GlyphProcessor {
 
-        public BoundsPainter(ILabelPainter painter) {
+        public BoundsPainter(LabelPainter painter) {
             super(painter);
         }
 
@@ -76,7 +76,7 @@ abstract class GlyphProcessor {
         int extraSpace;
         double minDistance;
 
-        public ConflictDetector(ILabelPainter painter, Rectangle displayArea,
+        public ConflictDetector(LabelPainter painter, Rectangle displayArea,
                                  LabelIndex paintedBounds, LabelIndex groupLabels) {
             super(painter);
             this.displayArea = displayArea;
@@ -112,7 +112,7 @@ abstract class GlyphProcessor {
 
         LabelIndex index;
 
-        public IndexAdder(ILabelPainter painter, LabelIndex index) {
+        public IndexAdder(LabelPainter painter, LabelIndex index) {
             super(painter);
             this.index = index;
         }
