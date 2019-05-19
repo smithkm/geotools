@@ -30,6 +30,8 @@ import static org.geotools.ysld.TestUtils.literal;
 import static org.geotools.ysld.TestUtils.nilExpression;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.describedAs;
@@ -66,6 +68,7 @@ import org.geotools.styling.ExternalGraphic;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.LabelPlacement;
 import org.geotools.styling.LineSymbolizer;
+import org.geotools.styling.NamedLayer;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
 import org.geotools.styling.ResourceLocator;
@@ -2299,5 +2302,35 @@ public class YsldParseTest {
         } catch (ConstructorException e) {
             assertThat(e.getMessage(), containsString("could not determine a constructor"));
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testNamedLayer() throws Exception {
+        String yaml =
+                "layers:\n"
+                        + "- name: TestLayer\n"
+                        + "  user-styles:\n"
+                        + "  - name: TestStyle\n"
+                        + "    feature-styles:\n"
+                        + "    - rules:\n"
+                        + "      - symbolizers:\n"
+                        + "        - point:\n"
+                        + "            symbols:\n"
+                        + "            - mark:\n"
+                        + "                shape: circle\n"
+                        + "                fill-color: '#FF0000'";
+        StyledLayerDescriptor sld = Ysld.parse(yaml);
+        assertThat(
+                sld.getStyledLayers(),
+                arrayContaining(
+                        both(hasProperty("name", equalTo("TestLayer")))
+                                .and(Matchers.instanceOf(NamedLayer.class))
+                                .and(
+                                        hasProperty(
+                                                "styles",
+                                                arrayContaining(
+                                                        hasProperty(
+                                                                "name", equalTo("TestStyle")))))));
     }
 }
